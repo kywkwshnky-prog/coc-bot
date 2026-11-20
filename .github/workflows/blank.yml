@@ -1,0 +1,32 @@
+
+name: CoC Telegram Bot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl
+
+      - name: Prepare bot configuration
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          ALLOWED_CHAT_ID: ${{ secrets.ALLOWED_CHAT_ID }}
+        run: |
+          printf 'BOT_TOKEN=%s\nALLOWED_CHAT_ID=%s\n' "$BOT_TOKEN" "$ALLOWED_CHAT_ID" > coc-bot/.env
+
+      - name: Start Telegram bot
+        run: php bot.php
+        working-directory: coc-bot
+concurrency:
